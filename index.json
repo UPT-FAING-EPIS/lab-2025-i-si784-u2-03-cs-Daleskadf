@@ -1,0 +1,47 @@
+{
+  "docs/Bank.Domain.BankAccount.html": {
+    "href": "docs/Bank.Domain.BankAccount.html",
+    "title": "Class BankAccount | Bank App",
+    "keywords": "Class BankAccount Namespace Bank.Domain Assembly Bank.Domain.dll public class BankAccount Inheritance object BankAccount Inherited Members object.Equals(object) object.Equals(object, object) object.GetHashCode() object.GetType() object.MemberwiseClone() object.ReferenceEquals(object, object) object.ToString() Constructors BankAccount(string, double) public BankAccount(string customerName, double balance) Parameters customerName string balance double Fields CreditAmountLessThanZeroMessage public const string CreditAmountLessThanZeroMessage = \"Credit amount is less than zero\" Field Value string DebitAmountExceedsBalanceMessage public const string DebitAmountExceedsBalanceMessage = \"Debit amount exceeds balance\" Field Value string DebitAmountLessThanZeroMessage public const string DebitAmountLessThanZeroMessage = \"Debit amount is less than zero\" Field Value string Properties Balance public double Balance { get; } Property Value double CustomerName public string CustomerName { get; } Property Value string Methods Credit(double) public void Credit(double amount) Parameters amount double Debit(double) public void Debit(double amount) Parameters amount double"
+  },
+  "docs/Bank.Domain.Class1.html": {
+    "href": "docs/Bank.Domain.Class1.html",
+    "title": "Class Class1 | Bank App",
+    "keywords": "Class Class1 Namespace Bank.Domain Assembly Bank.Domain.dll public class Class1 Inheritance object Class1 Inherited Members object.Equals(object) object.Equals(object, object) object.GetHashCode() object.GetType() object.MemberwiseClone() object.ReferenceEquals(object, object) object.ToString()"
+  },
+  "docs/Bank.Domain.Tests.BankAccountTests.html": {
+    "href": "docs/Bank.Domain.Tests.BankAccountTests.html",
+    "title": "Class BankAccountTests | Bank App",
+    "keywords": "Class BankAccountTests Namespace Bank.Domain.Tests Assembly Bank.Domain.Tests.dll public class BankAccountTests Inheritance object BankAccountTests Inherited Members object.Equals(object) object.Equals(object, object) object.GetHashCode() object.GetType() object.MemberwiseClone() object.ReferenceEquals(object, object) object.ToString() Methods Credit_WhenAmountIsLessThanZero_ShouldThrowArgumentOutOfRange() [Test] public void Credit_WhenAmountIsLessThanZero_ShouldThrowArgumentOutOfRange() Credit_WithValidAmount_UpdatesBalance() [Test] public void Credit_WithValidAmount_UpdatesBalance() Debit_WhenAmountIsLessThanZero_ShouldThrowArgumentOutOfRange() [Test] public void Debit_WhenAmountIsLessThanZero_ShouldThrowArgumentOutOfRange() Debit_WhenAmountIsMoreThanBalance_ShouldThrowArgumentOutOfRange() [Test] public void Debit_WhenAmountIsMoreThanBalance_ShouldThrowArgumentOutOfRange() Debit_WithValidAmount_UpdatesBalance() [Test] public void Debit_WithValidAmount_UpdatesBalance()"
+  },
+  "docs/Bank.Domain.Tests.Tests.html": {
+    "href": "docs/Bank.Domain.Tests.Tests.html",
+    "title": "Class Tests | Bank App",
+    "keywords": "Class Tests Namespace Bank.Domain.Tests Assembly Bank.Domain.Tests.dll public class Tests Inheritance object Tests Inherited Members object.Equals(object) object.Equals(object, object) object.GetHashCode() object.GetType() object.MemberwiseClone() object.ReferenceEquals(object, object) object.ToString() Methods Setup() [SetUp] public void Setup() Test1() [Test] public void Test1()"
+  },
+  "docs/Bank.Domain.Tests.html": {
+    "href": "docs/Bank.Domain.Tests.html",
+    "title": "Namespace Bank.Domain.Tests | Bank App",
+    "keywords": "Namespace Bank.Domain.Tests Classes BankAccountTests"
+  },
+  "docs/Bank.Domain.html": {
+    "href": "docs/Bank.Domain.html",
+    "title": "Namespace Bank.Domain | Bank App",
+    "keywords": "Namespace Bank.Domain Classes BankAccount"
+  },
+  "docs/getting-started.html": {
+    "href": "docs/getting-started.html",
+    "title": "Getting Started | Bank App",
+    "keywords": "Getting Started"
+  },
+  "docs/introduction.html": {
+    "href": "docs/introduction.html",
+    "title": "Introduction | Bank App",
+    "keywords": "Introduction"
+  },
+  "index.html": {
+    "href": "index.html",
+    "title": "This is the HOMEPAGE. | Bank App",
+    "keywords": "This is the HOMEPAGE. Pruebas Clase, Métodos y Atributos Tests"
+  }
+}
