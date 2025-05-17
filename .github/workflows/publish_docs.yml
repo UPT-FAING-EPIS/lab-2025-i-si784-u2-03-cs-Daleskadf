@@ -1,28 +1,42 @@
 name: Publicar Doc con docfx
 
-on: push
+on:
+  push:
+    branches:
+      - main 
+
 jobs:
   docfx:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+    - name: Checkout repository
+      uses: actions/checkout@v3 
 
-    
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: 8.0
-    - name: Init DocFx
-      run: dotnet tool update -g docfx
+        dotnet-version: '8.0.x'
+    - name: Install DocFx globally
+      run: dotnet tool update -g docfx --version 2.75.2 
 
-    - name: Generar metadata
-      run: docfx metadata Bank/docfx.json
+    - name: Add .NET tools to PATH (if not already picked up)
+      run: echo "$HOME/.dotnet/tools" >> $GITHUB_PATH
 
-    - name: Build Doc Site
+    - name: Generate metadata for DocFx
+      run: docfx metadata Bank/docfx.json 
+
+    - name: Build DocFx Site
       run: docfx build Bank/docfx.json
 
-    - name: Subir GitHub Pages
+    - name: Publish DocFx site to GitHub Pages
       uses: peaceiris/actions-gh-pages@v4
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: Bank/_site
+        publish_dir: Bank/_site               # Directorio que contiene el sitio de DocFx
+        publish_branch: gh-pages              # Rama de destino
+        # destination_dir: .  # Publica en la raíz (por defecto si se omite)
+        keep_files: true                      # No borra otros archivos/directorios (como el informe de cobertura)
+        allow_empty_commit: false
+        force_orphan: false                   # Considera si quieres esto o no
+        enable_jekyll: false
+        disable_nojekyll: false               # DocFx genera un .nojekyll, esto asegura que no se elimine.
