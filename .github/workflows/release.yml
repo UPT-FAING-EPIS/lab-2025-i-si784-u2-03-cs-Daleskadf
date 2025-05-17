@@ -64,3 +64,4 @@ jobs:
         name: "Release ${{ env.NAME }}"
         files: out/*.nupkg
         token: ${{ secrets.GH_TOKEN }}
+        
