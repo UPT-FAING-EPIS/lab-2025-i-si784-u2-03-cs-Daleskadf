@@ -1,0 +1,17 @@
+### YamlMime:TableOfContent
+items:
+- uid: Bank.Domain
+  name: Bank.Domain
+  type: Namespace
+  items:
+  - uid: Bank.Domain.BankAccount
+    name: BankAccount
+    type: Class
+- uid: Bank.Domain.Tests
+  name: Bank.Domain.Tests
+  type: Namespace
+  items:
+  - uid: Bank.Domain.Tests.BankAccountTests
+    name: BankAccountTests
+    type: Class
+memberLayout: SamePage
