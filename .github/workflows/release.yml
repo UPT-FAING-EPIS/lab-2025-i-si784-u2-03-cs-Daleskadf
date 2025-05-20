@@ -92,3 +92,5 @@ jobs:
         artifacts: "${{ env.PACKAGE_OUTPUT_DIRECTORY }}/${{ env.PROJECT_NAME }}.${{ env.PACKAGE_VERSION }}.nupkg"
         token: ${{ secrets.GH_TOKEN }}
         allowUpdates: true
+
+        
