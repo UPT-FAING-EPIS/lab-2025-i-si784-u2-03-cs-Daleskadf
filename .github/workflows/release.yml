@@ -2,7 +2,6 @@ name: Bank - Release NuGet Package and Create GitHub Release
 
 env:
   DOTNET_VERSION: '8.0.x'
-  # Asegúrate que este PROJECT_NAME coincida con el <PackageId> en tu .csproj
   PROJECT_NAME: Bank.Domain 
   PROJECT_PATH: Bank/Bank.Domain/Bank.Domain.csproj
   TEST_PROJECT_PATH: Bank/Bank.Domain.Tests/Bank.Domain.Tests.csproj
@@ -11,8 +10,8 @@ env:
 on:
   push:
     branches:
-      - main # Se activa cuando haces push a la rama main
-  workflow_dispatch: # Te permite ejecutarlo manualmente también
+      - main 
+  workflow_dispatch: 
 
 jobs:
   build-test-publish-release:
