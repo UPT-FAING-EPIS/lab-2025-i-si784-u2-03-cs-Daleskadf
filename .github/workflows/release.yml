@@ -18,10 +18,6 @@ jobs:
     name: Build, Test, Publish Bank Package to Daleskadf Personal Feed
     runs-on: ubuntu-latest
     permissions:
-      # Estos permisos son para el GITHUB_TOKEN automático, que no estamos usando para la autenticación
-      # de nuget aquí, pero son buenas prácticas tenerlos si alguna vez cambias a GITHUB_TOKEN
-      # para otras cosas o para la acción de release si el PAT no tuviera 'repo'.
-      # Para publicar con PAT (GH_TOKEN), los permisos vienen del PAT.
       contents: write 
       packages: write 
 
@@ -29,7 +25,7 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
       with:
-        fetch-depth: 0 # Necesario para que ncipollo/release-action pueda encontrar tags correctamente
+        fetch-depth: 0 
 
     - name: Setup .NET SDK
       uses: actions/setup-dotnet@v4
@@ -48,14 +44,11 @@ jobs:
     - name: Get Package Version from .csproj
       id: package_info
       run: |
-        # Extrae la versión del archivo .csproj
         VERSION=$(grep -oP '(?<=<Version>).*(?=</Version>)' ${{ env.PROJECT_PATH }} | head -n 1)
-        
         if [ -z "$VERSION" ]; then
           echo "Error: No se pudo extraer la versión del archivo ${{ env.PROJECT_PATH }}"
           exit 1
         fi
-        
         echo "PACKAGE_VERSION=$VERSION" >> $GITHUB_ENV
         echo "version_tag=v$VERSION" >> $GITHUB_ENV 
         echo "Versión del paquete leída del .csproj: $VERSION"
@@ -63,7 +56,6 @@ jobs:
     - name: Create NuGet Package
       run: |
         echo "Empaquetando ${{ env.PROJECT_NAME }} con versión: ${{ env.PACKAGE_VERSION }}"
-        # dotnet pack usará la <Version> del .csproj automáticamente
         dotnet pack ${{ env.PROJECT_PATH }} \
           -c Release \
           --no-build \
@@ -71,11 +63,22 @@ jobs:
           
     - name: Setup NuGet Source for Your Personal GitHub Packages (Daleskadf)
       run: |
-        PERSONAL_NUGET_URL="https://nuget.pkg.github.com/Daleskadf/index.json"
+        # Reemplaza 'Daleskadf' con tu nombre de usuario real si es diferente.
+        PERSONAL_NUGET_URL="https://nuget.pkg.github.com/Daleskadf/index.json" 
         echo "Configurando NuGet source para el feed personal: $PERSONAL_NUGET_URL"
         
         # Comando completo en una sola línea
         dotnet nuget add source "$PERSONAL_NUGET_URL" --name "github-daleskadf-feed" --username "Daleskadf" --password "${{ secrets.GH_TOKEN }}" --store-password-in-clear-text
+
+    # --- ESTE ES EL PASO QUE FALTABA ---
+    - name: Publish NuGet Package to Your Personal GitHub Packages (Daleskadf)
+      run: |
+        echo "Intentando publicar el paquete en el feed de Daleskadf..."
+        dotnet nuget push "${{ env.PACKAGE_OUTPUT_DIRECTORY }}/${{ env.PROJECT_NAME }}.${{ env.PACKAGE_VERSION }}.nupkg" \
+          --api-key "${{ secrets.GH_TOKEN }}" \
+          --source "github-daleskadf-feed" \
+          --skip-duplicate
+    # --- FIN DEL PASO QUE FALTABA ---
 
     - name: Create GitHub Release
       uses: ncipollo/release-action@v1
@@ -88,5 +91,5 @@ jobs:
           El paquete NuGet ha sido publicado en el feed personal de Daleskadf.
           Contiene el archivo NuGet generado.
         artifacts: "${{ env.PACKAGE_OUTPUT_DIRECTORY }}/${{ env.PROJECT_NAME }}.${{ env.PACKAGE_VERSION }}.nupkg"
-        token: "${{ secrets.GH_TOKEN }}" # Tu PAT personal con scope 'repo' para crear el release en este repo
-        allowUpdates: true # Permite actualizar un release si el tag ya existe (útil para re-runs)
+        token: "${{ secrets.GH_TOKEN }}" 
+        allowUpdates: true
