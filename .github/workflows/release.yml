@@ -71,13 +71,9 @@ jobs:
 
     - name: Setup NuGet Source for Your Personal GitHub Packages (Daleskadf)
       run: |
-        # Asegúrate de que 'Daleskadf' sea tu nombre de usuario de GitHub correcto.
-        # Si es diferente, reemplázalo aquí.
         PERSONAL_NUGET_URL="https://nuget.pkg.github.com/Daleskadf/index.json" 
         echo "Configurando NuGet source para el feed personal: $PERSONAL_NUGET_URL"
-        
-        # Usar el secreto GH_TOKEN que contiene tu PAT personal funcional
-        # La URL va PRIMERO después de 'add source' para mayor robustez.
+
         dotnet nuget add source "$PERSONAL_NUGET_URL" \
           --name "github-daleskadf-feed" \ # Nombre de source único y descriptivo  <--- PROBLEMA AQUÍ
           --username "Daleskadf" \    # Tu nombre de usuario GitHub (debería ser Daleskadf) <--- PROBLEMA AQUÍ
