@@ -1,4 +1,4 @@
-name: Bank - Release NuGet Package to Personal Daleskadf Feed
+name: Bank - Release NuGet Package to UPT-FAING-EPIS Org Feed
 
 env:
   DOTNET_VERSION: '8.0.x'
@@ -6,20 +6,23 @@ env:
   PROJECT_PATH: Bank/Bank.Domain/Bank.Domain.csproj
   TEST_PROJECT_PATH: Bank/Bank.Domain.Tests/Bank.Domain.Tests.csproj
   PACKAGE_OUTPUT_DIRECTORY: out
+  # El propietario del repositorio (y del feed de paquetes de la organización)
+  ORGANIZATION_NAME: ${{ github.repository_owner }} 
 
 on:
   push:
     branches:
-      - main  # Se activa cuando haces push a la rama main
-  workflow_dispatch: # Te permite ejecutarlo manualmente también
+      - main  
+  workflow_dispatch: 
 
 jobs:
   build-test-publish-release:
-    name: Build, Test, Publish Bank Package to Daleskadf Personal Feed
+    name: Build, Test, Publish Bank Package to UPT-FAING-EPIS Org Feed
     runs-on: ubuntu-latest
     permissions:
-      contents: write 
-      packages: write 
+      # Permisos ESENCIALES para que GITHUB_TOKEN pueda funcionar
+      contents: write  # Para la acción de release (crear tags, releases)
+      packages: write # Para publicar paquetes en GitHub Packages
 
     steps:
     - name: Checkout repository
@@ -61,24 +64,27 @@ jobs:
           --no-build \
           -o ${{ env.PACKAGE_OUTPUT_DIRECTORY }}
           
-    - name: Setup NuGet Source for Your Personal GitHub Packages (Daleskadf)
+    - name: Setup NuGet Source for Organization GitHub Packages
       run: |
-        # Reemplaza 'Daleskadf' con tu nombre de usuario real si es diferente.
-        PERSONAL_NUGET_URL="https://nuget.pkg.github.com/Daleskadf/index.json" 
-        echo "Configurando NuGet source para el feed personal: $PERSONAL_NUGET_URL"
+        # URL del feed de la organización, usando github.repository_owner
+        ORG_NUGET_URL="https://nuget.pkg.github.com/${{ env.ORGANIZATION_NAME }}/index.json"
+        echo "Configurando NuGet source para el feed de la organización: $ORG_NUGET_URL"
         
-        # Comando completo en una sola línea
-        dotnet nuget add source "$PERSONAL_NUGET_URL" --name "github-daleskadf-feed" --username "Daleskadf" --password "${{ secrets.GH_TOKEN }}" --store-password-in-clear-text
-
-    # --- ESTE ES EL PASO QUE FALTABA ---
-    - name: Publish NuGet Package to Your Personal GitHub Packages (Daleskadf)
+        # Autenticación usando GITHUB_TOKEN (el token automático de Actions)
+        # USERNAME es github.actor (el usuario/entidad que ejecuta el workflow)
+        dotnet nuget add source "$ORG_NUGET_URL" \
+          --name "github-org-feed" \
+          --username "${{ github.actor }}" \
+          --password "${{ secrets.GITHUB_TOKEN }}" \ # Usando el token automático
+          --store-password-in-clear-text
+          
+    - name: Publish NuGet Package to Organization GitHub Packages
       run: |
-        echo "Intentando publicar el paquete en el feed de Daleskadf..."
+        echo "Intentando publicar el paquete en el feed de la organización ${{ env.ORGANIZATION_NAME }}..."
         dotnet nuget push "${{ env.PACKAGE_OUTPUT_DIRECTORY }}/${{ env.PROJECT_NAME }}.${{ env.PACKAGE_VERSION }}.nupkg" \
-          --api-key "${{ secrets.GH_TOKEN }}" \
-          --source "github-daleskadf-feed" \
+          --api-key "${{ secrets.GITHUB_TOKEN }}" \ # Usando el token automático
+          --source "github-org-feed" \
           --skip-duplicate
-    # --- FIN DEL PASO QUE FALTABA ---
 
     - name: Create GitHub Release
       uses: ncipollo/release-action@v1
@@ -88,8 +94,8 @@ jobs:
         body: |
           Release del paquete ${{ env.PROJECT_NAME }} versión ${{ env.PACKAGE_VERSION }}.
           El código fuente está en ${{ github.server_url }}/${{ github.repository }}.
-          El paquete NuGet ha sido publicado en el feed personal de Daleskadf.
+          El paquete NuGet ha sido publicado en el feed de la organización ${{ env.ORGANIZATION_NAME }}.
           Contiene el archivo NuGet generado.
         artifacts: "${{ env.PACKAGE_OUTPUT_DIRECTORY }}/${{ env.PROJECT_NAME }}.${{ env.PACKAGE_VERSION }}.nupkg"
-        token: "${{ secrets.GH_TOKEN }}" 
+        token: "${{ secrets.GITHUB_TOKEN }}" # Usando el token automático (necesita contents: write)
         allowUpdates: true
