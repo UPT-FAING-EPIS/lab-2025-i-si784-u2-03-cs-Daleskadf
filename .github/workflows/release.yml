@@ -19,7 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write 
-      packages: write 
+      packages: write # Estos permisos son para secrets.GITHUB_TOKEN
 
     steps:
     - name: Checkout repository
@@ -44,15 +44,11 @@ jobs:
     - name: Get Package Version from .csproj
       id: package_info
       run: |
-        # Extrae la versión del archivo .csproj
-        # Este comando busca la etiqueta <Version> dentro de <PropertyGroup>
         VERSION=$(grep -oP '(?<=<Version>).*(?=</Version>)' ${{ env.PROJECT_PATH }} | head -n 1)
-        
         if [ -z "$VERSION" ]; then
           echo "Error: No se pudo extraer la versión del archivo ${{ env.PROJECT_PATH }}"
           exit 1
         fi
-        
         echo "PACKAGE_VERSION=$VERSION" >> $GITHUB_ENV
         echo "version_tag=v$VERSION" >> $GITHUB_ENV 
         echo "Versión del paquete leída del .csproj: $VERSION"
@@ -60,25 +56,24 @@ jobs:
     - name: Create NuGet Package
       run: |
         echo "Empaquetando ${{ env.PROJECT_NAME }} con versión: ${{ env.PACKAGE_VERSION }}"
-        # Ya no es necesario pasar /p:PackageVersion porque dotnet pack leerá la versión del .csproj
         dotnet pack ${{ env.PROJECT_PATH }} \
           -c Release \
           --no-build \
           -o ${{ env.PACKAGE_OUTPUT_DIRECTORY }}
 
-
     - name: Setup NuGet Source for GitHub Packages
       run: |
+        # Volver a usar el token automático de GitHub
         dotnet nuget add source --username ${{ github.actor }} \
-          --password ${{ secrets.GH_TOKEN }} \
+          --password ${{ secrets.GITHUB_TOKEN }} \
           --store-password-in-clear-text \
           --name github "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json"
 
     - name: Publish NuGet Package to GitHub Packages
       run: |
-        # El nombre del archivo nupkg se forma como <PackageId>.<Version>.nupkg
+        # Volver a usar el token automático de GitHub
         dotnet nuget push "${{ env.PACKAGE_OUTPUT_DIRECTORY }}/${{ env.PROJECT_NAME }}.${{ env.PACKAGE_VERSION }}.nupkg" \
-          --api-key ${{ secrets.GH_TOKEN }} \
+          --api-key ${{ secrets.GITHUB_TOKEN }} \
           --source "github" \
           --skip-duplicate
 
@@ -91,6 +86,6 @@ jobs:
           Release del paquete ${{ env.PROJECT_NAME }} versión ${{ env.PACKAGE_VERSION }}.
           Contiene el archivo NuGet generado.
         artifacts: "${{ env.PACKAGE_OUTPUT_DIRECTORY }}/${{ env.PROJECT_NAME }}.${{ env.PACKAGE_VERSION }}.nupkg"
-        token: ${{ secrets.GH_TOKEN }}
+        # Volver a usar el token automático de GitHub
+        token: ${{ secrets.GITHUB_TOKEN }}
         allowUpdates: true
-
