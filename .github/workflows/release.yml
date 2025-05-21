@@ -1,4 +1,4 @@
-name: Bank - Release NuGet Package to UPT-FAING-EPIS Org Feed
+name: Bank - Release NuGet Package and Create GitHub Release
 
 env:
   DOTNET_VERSION: '8.0.x'
@@ -6,23 +6,20 @@ env:
   PROJECT_PATH: Bank/Bank.Domain/Bank.Domain.csproj
   TEST_PROJECT_PATH: Bank/Bank.Domain.Tests/Bank.Domain.Tests.csproj
   PACKAGE_OUTPUT_DIRECTORY: out
-  # El propietario del repositorio (y del feed de paquetes de la organización)
-  ORGANIZATION_NAME: ${{ github.repository_owner }} 
 
 on:
   push:
     branches:
-      - main  
+      - main 
   workflow_dispatch: 
 
 jobs:
   build-test-publish-release:
-    name: Build, Test, Publish Bank Package to UPT-FAING-EPIS Org Feed
+    name: Build, Test, Publish Bank Package and Create Release
     runs-on: ubuntu-latest
     permissions:
-      # Permisos ESENCIALES para que GITHUB_TOKEN pueda funcionar
-      contents: write  # Para la acción de release (crear tags, releases)
-      packages: write # Para publicar paquetes en GitHub Packages
+      contents: write 
+      packages: write 
 
     steps:
     - name: Checkout repository
@@ -47,11 +44,15 @@ jobs:
     - name: Get Package Version from .csproj
       id: package_info
       run: |
+        # Extrae la versión del archivo .csproj
+        # Este comando busca la etiqueta <Version> dentro de <PropertyGroup>
         VERSION=$(grep -oP '(?<=<Version>).*(?=</Version>)' ${{ env.PROJECT_PATH }} | head -n 1)
+        
         if [ -z "$VERSION" ]; then
           echo "Error: No se pudo extraer la versión del archivo ${{ env.PROJECT_PATH }}"
           exit 1
         fi
+        
         echo "PACKAGE_VERSION=$VERSION" >> $GITHUB_ENV
         echo "version_tag=v$VERSION" >> $GITHUB_ENV 
         echo "Versión del paquete leída del .csproj: $VERSION"
@@ -59,31 +60,26 @@ jobs:
     - name: Create NuGet Package
       run: |
         echo "Empaquetando ${{ env.PROJECT_NAME }} con versión: ${{ env.PACKAGE_VERSION }}"
+        # Ya no es necesario pasar /p:PackageVersion porque dotnet pack leerá la versión del .csproj
         dotnet pack ${{ env.PROJECT_PATH }} \
           -c Release \
           --no-build \
           -o ${{ env.PACKAGE_OUTPUT_DIRECTORY }}
-          
-    - name: Setup NuGet Source for Organization GitHub Packages
+
+
+    - name: Setup NuGet Source for GitHub Packages
       run: |
-        # URL del feed de la organización, usando github.repository_owner
-        ORG_NUGET_URL="https://nuget.pkg.github.com/${{ env.ORGANIZATION_NAME }}/index.json"
-        echo "Configurando NuGet source para el feed de la organización: $ORG_NUGET_URL"
-        
-        # Autenticación usando GITHUB_TOKEN (el token automático de Actions)
-        # USERNAME es github.actor (el usuario/entidad que ejecuta el workflow)
-        dotnet nuget add source "$ORG_NUGET_URL" \
-          --name "github-org-feed" \
-          --username "${{ github.actor }}" \
-          --password "${{ secrets.GITHUB_TOKEN }}" \ # Usando el token automático
-          --store-password-in-clear-text
-          
-    - name: Publish NuGet Package to Organization GitHub Packages
+        dotnet nuget add source --username ${{ github.actor }} \
+          --password ${{ secrets.GITHUB_TOKEN }} \
+          --store-password-in-clear-text \
+          --name github "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json"
+
+    - name: Publish NuGet Package to GitHub Packages
       run: |
-        echo "Intentando publicar el paquete en el feed de la organización ${{ env.ORGANIZATION_NAME }}..."
+        # El nombre del archivo nupkg se forma como <PackageId>.<Version>.nupkg
         dotnet nuget push "${{ env.PACKAGE_OUTPUT_DIRECTORY }}/${{ env.PROJECT_NAME }}.${{ env.PACKAGE_VERSION }}.nupkg" \
-          --api-key "${{ secrets.GITHUB_TOKEN }}" \ # Usando el token automático
-          --source "github-org-feed" \
+          --api-key ${{ secrets.GITHUB_TOKEN }} \
+          --source "github" \
           --skip-duplicate
 
     - name: Create GitHub Release
@@ -93,9 +89,8 @@ jobs:
         name: "Release ${{ env.version_tag }} (${{ env.PROJECT_NAME }})"
         body: |
           Release del paquete ${{ env.PROJECT_NAME }} versión ${{ env.PACKAGE_VERSION }}.
-          El código fuente está en ${{ github.server_url }}/${{ github.repository }}.
-          El paquete NuGet ha sido publicado en el feed de la organización ${{ env.ORGANIZATION_NAME }}.
           Contiene el archivo NuGet generado.
         artifacts: "${{ env.PACKAGE_OUTPUT_DIRECTORY }}/${{ env.PROJECT_NAME }}.${{ env.PACKAGE_VERSION }}.nupkg"
-        token: "${{ secrets.GITHUB_TOKEN }}" # Usando el token automático (necesita contents: write)
+        token: ${{ secrets.GITHUB_TOKEN }}
         allowUpdates: true
+
