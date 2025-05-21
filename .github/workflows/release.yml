@@ -65,7 +65,7 @@ jobs:
       run: |
         # Volver a usar el token automático de GitHub
         dotnet nuget add source --username ${{ github.actor }} \
-          --password ${{ secrets.GIT_TOKEN }} \
+          --password ${{ secrets.GH_TOKEN }} \
           --store-password-in-clear-text \
           --name github "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json"
 
@@ -73,7 +73,7 @@ jobs:
       run: |
         # Volver a usar el token automático de GitHub
         dotnet nuget push "${{ env.PACKAGE_OUTPUT_DIRECTORY }}/${{ env.PROJECT_NAME }}.${{ env.PACKAGE_VERSION }}.nupkg" \
-          --api-key ${{ secrets.GIT_TOKEN }} \
+          --api-key ${{ secrets.GH_TOKEN }} \
           --source "github" \
           --skip-duplicate
 
@@ -87,5 +87,6 @@ jobs:
           Contiene el archivo NuGet generado.
         artifacts: "${{ env.PACKAGE_OUTPUT_DIRECTORY }}/${{ env.PROJECT_NAME }}.${{ env.PACKAGE_VERSION }}.nupkg"
         # Volver a usar el token automático de GitHub
-        token: ${{ secrets.GIT_TOKEN }}
+        token: ${{ secrets.GH_TOKEN }}
         allowUpdates: true
+        
