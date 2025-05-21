@@ -20,7 +20,7 @@ jobs:
     permissions:
       contents: write 
       packages: write 
-      
+
 
     steps:
     - name: Checkout repository
@@ -28,6 +28,7 @@ jobs:
       with:
         fetch-depth: 0 
 
+        
     - name: Setup .NET SDK
       uses: actions/setup-dotnet@v4
       with:
