@@ -63,11 +63,15 @@ jobs:
 
     - name: Setup NuGet Source for GitHub Packages
       run: |
-        # Volver a usar el token automático de GitHub
+        # Construye la URL y la imprime para depuración
+        EXPECTED_NUGET_URL="https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json"
+        echo "La URL para el source de NuGet será: $EXPECTED_NUGET_URL"
+        
+        # Ahora usa la variable en el comando
         dotnet nuget add source --username ${{ github.actor }} \
           --password ${{ secrets.GH_TOKEN }} \
           --store-password-in-clear-text \
-          --name github "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json"
+          --name github "$EXPECTED_NUGET_URL"
 
     - name: Publish NuGet Package to GitHub Packages
       run: |
@@ -89,4 +93,3 @@ jobs:
         # Volver a usar el token automático de GitHub
         token: ${{ secrets.GH_TOKEN }}
         allowUpdates: true
-        
