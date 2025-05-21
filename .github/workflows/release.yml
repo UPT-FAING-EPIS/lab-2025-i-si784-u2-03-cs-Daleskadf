@@ -80,13 +80,16 @@ jobs:
           --password "${{ secrets.GH_TOKEN }}" \ 
           --store-password-in-clear-text
           
-    - name: Publish NuGet Package to Your Personal GitHub Packages (Daleskadf)
+    - name: Setup NuGet Source for Your Personal GitHub Packages (Daleskadf)
       run: |
-        # Publicar al source "github-daleskadf-feed"
-        dotnet nuget push "${{ env.PACKAGE_OUTPUT_DIRECTORY }}/${{ env.PROJECT_NAME }}.${{ env.PACKAGE_VERSION }}.nupkg" \
-          --api-key "${{ secrets.GH_TOKEN }}" \ 
-          --source "github-daleskadf-feed" \
-          --skip-duplicate
+        PERSONAL_NUGET_URL="https://nuget.pkg.github.com/Daleskadf/index.json" 
+        echo "Configurando NuGet source para el feed personal: $PERSONAL_NUGET_URL"
+
+        dotnet nuget add source "$PERSONAL_NUGET_URL" \
+          --name "github-daleskadf-feed" \
+          --username "Daleskadf" \
+          --password "${{ secrets.GH_TOKEN }}" \
+          --store-password-in-clear-text
 
     - name: Create GitHub Release
       uses: ncipollo/release-action@v1
