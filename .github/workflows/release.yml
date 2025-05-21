@@ -68,17 +68,6 @@ jobs:
           -c Release \
           --no-build \
           -o ${{ env.PACKAGE_OUTPUT_DIRECTORY }}
-
-    - name: Setup NuGet Source for Your Personal GitHub Packages (Daleskadf)
-      run: |
-        PERSONAL_NUGET_URL="https://nuget.pkg.github.com/Daleskadf/index.json" 
-        echo "Configurando NuGet source para el feed personal: $PERSONAL_NUGET_URL"
-
-        dotnet nuget add source "$PERSONAL_NUGET_URL" \
-          --name "github-daleskadf-feed" \ 
-          --username "Daleskadf" \ 
-          --password "${{ secrets.GH_TOKEN }}" \ 
-          --store-password-in-clear-text
           
     - name: Setup NuGet Source for Your Personal GitHub Packages (Daleskadf)
       run: |
