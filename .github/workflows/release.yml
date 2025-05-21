@@ -79,9 +79,9 @@ jobs:
         # Usar el secreto GH_TOKEN que contiene tu PAT personal funcional
         # La URL va PRIMERO después de 'add source' para mayor robustez.
         dotnet nuget add source "$PERSONAL_NUGET_URL" \
-          --name "github-daleskadf-feed" \ # Nombre de source único y descriptivo
-          --username "${{ github.actor }}" \    # Tu nombre de usuario GitHub (debería ser Daleskadf)
-          --password "${{ secrets.GH_TOKEN }}" \   # Tu PAT personal
+          --name "github-daleskadf-feed" \ # Nombre de source único y descriptivo  <--- PROBLEMA AQUÍ
+          --username "Daleskadf" \    # Tu nombre de usuario GitHub (debería ser Daleskadf) <--- PROBLEMA AQUÍ
+          --password "${{ secrets.GH_TOKEN }}" \   # Tu PAT personal <--- PROBLEMA AQUÍ
           --store-password-in-clear-text
           
     - name: Publish NuGet Package to Your Personal GitHub Packages (Daleskadf)
