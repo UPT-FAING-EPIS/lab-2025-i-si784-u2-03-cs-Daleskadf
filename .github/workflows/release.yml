@@ -19,7 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write 
-      packages: write # Estos permisos son para secrets.GITHUB_TOKEN
+      packages: write 
 
     steps:
     - name: Checkout repository
@@ -65,7 +65,7 @@ jobs:
       run: |
         # Volver a usar el token automático de GitHub
         dotnet nuget add source --username ${{ github.actor }} \
-          --password ${{ secrets.GITHUB_TOKEN }} \
+          --password ${{ secrets.GIT_TOKEN }} \
           --store-password-in-clear-text \
           --name github "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json"
 
@@ -73,7 +73,7 @@ jobs:
       run: |
         # Volver a usar el token automático de GitHub
         dotnet nuget push "${{ env.PACKAGE_OUTPUT_DIRECTORY }}/${{ env.PROJECT_NAME }}.${{ env.PACKAGE_VERSION }}.nupkg" \
-          --api-key ${{ secrets.GITHUB_TOKEN }} \
+          --api-key ${{ secrets.GIT_TOKEN }} \
           --source "github" \
           --skip-duplicate
 
@@ -87,5 +87,5 @@ jobs:
           Contiene el archivo NuGet generado.
         artifacts: "${{ env.PACKAGE_OUTPUT_DIRECTORY }}/${{ env.PROJECT_NAME }}.${{ env.PACKAGE_VERSION }}.nupkg"
         # Volver a usar el token automático de GitHub
-        token: ${{ secrets.GITHUB_TOKEN }}
+        token: ${{ secrets.GIT_TOKEN }}
         allowUpdates: true
