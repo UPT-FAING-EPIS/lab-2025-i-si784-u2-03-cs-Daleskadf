@@ -21,14 +21,12 @@ jobs:
       contents: write 
       packages: write 
 
-
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
       with:
         fetch-depth: 0 
 
-        
     - name: Setup .NET SDK
       uses: actions/setup-dotnet@v4
       with:
@@ -46,11 +44,15 @@ jobs:
     - name: Get Package Version from .csproj
       id: package_info
       run: |
+        # Extrae la versión del archivo .csproj
+        # Este comando busca la etiqueta <Version> dentro de <PropertyGroup>
         VERSION=$(grep -oP '(?<=<Version>).*(?=</Version>)' ${{ env.PROJECT_PATH }} | head -n 1)
+        
         if [ -z "$VERSION" ]; then
           echo "Error: No se pudo extraer la versión del archivo ${{ env.PROJECT_PATH }}"
           exit 1
         fi
+        
         echo "PACKAGE_VERSION=$VERSION" >> $GITHUB_ENV
         echo "version_tag=v$VERSION" >> $GITHUB_ENV 
         echo "Versión del paquete leída del .csproj: $VERSION"
@@ -58,26 +60,23 @@ jobs:
     - name: Create NuGet Package
       run: |
         echo "Empaquetando ${{ env.PROJECT_NAME }} con versión: ${{ env.PACKAGE_VERSION }}"
+        # Ya no es necesario pasar /p:PackageVersion porque dotnet pack leerá la versión del .csproj
         dotnet pack ${{ env.PROJECT_PATH }} \
           -c Release \
           --no-build \
           -o ${{ env.PACKAGE_OUTPUT_DIRECTORY }}
 
+
     - name: Setup NuGet Source for GitHub Packages
       run: |
-        # Construye la URL y la imprime para depuración
-        EXPECTED_NUGET_URL="https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json"
-        echo "La URL para el source de NuGet será: $EXPECTED_NUGET_URL"
-        
-        # Ahora usa la variable en el comando
         dotnet nuget add source --username ${{ github.actor }} \
           --password ${{ secrets.GH_TOKEN }} \
           --store-password-in-clear-text \
-          --name github "$EXPECTED_NUGET_URL"
+          --name github "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json"
 
     - name: Publish NuGet Package to GitHub Packages
       run: |
-        # Volver a usar el token automático de GitHub
+        # El nombre del archivo nupkg se forma como <PackageId>.<Version>.nupkg
         dotnet nuget push "${{ env.PACKAGE_OUTPUT_DIRECTORY }}/${{ env.PROJECT_NAME }}.${{ env.PACKAGE_VERSION }}.nupkg" \
           --api-key ${{ secrets.GH_TOKEN }} \
           --source "github" \
@@ -92,6 +91,6 @@ jobs:
           Release del paquete ${{ env.PROJECT_NAME }} versión ${{ env.PACKAGE_VERSION }}.
           Contiene el archivo NuGet generado.
         artifacts: "${{ env.PACKAGE_OUTPUT_DIRECTORY }}/${{ env.PROJECT_NAME }}.${{ env.PACKAGE_VERSION }}.nupkg"
-        # Volver a usar el token automático de GitHub
         token: ${{ secrets.GH_TOKEN }}
         allowUpdates: true
+
