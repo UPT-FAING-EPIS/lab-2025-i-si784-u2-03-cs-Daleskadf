@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <Version>1.0.0</Version>
+    <Version>3.0.0</Version>
     <PackageId>Bank.Domain</PackageId>
 
     <TargetFramework>net8.0</TargetFramework>
@@ -9,7 +9,6 @@
     <Nullable>enable</Nullable>
 
     <Authors>Daleskadf</Authors>
-    <Company>UPT-FAING-EPIS</Company>
     <Description>Una librería de ejemplo para el dominio bancario.</Description>
 
     <RepositoryUrl>https://github.com/UPT-FAING-EPIS/lab-2025-i-si784-u2-03-cs-Daleskadf</RepositoryUrl>
